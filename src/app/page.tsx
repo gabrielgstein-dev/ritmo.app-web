@@ -2,7 +2,7 @@ import ClientTimeCalculator from '@/components/ClientTimeCalculator';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div>
       <header className="bg-blue-600 text-white py-6">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold text-center">Controle de Ponto</h1>
@@ -29,12 +29,6 @@ export default function Home() {
           <ClientTimeCalculator />
         </div>
       </main>
-
-      <footer className="bg-gray-800 text-white py-6 mt-12">
-        <div className="container mx-auto px-4 text-center">
-          <p>© {new Date().getFullYear()} - Aplicativo de Controle de Ponto</p>
-        </div>
-      </footer>
     </div>
   );
 }
