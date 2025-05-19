@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { timeCalculatorApi } from '../services/api';
 
 interface TimeResult {
   hours: number;
@@ -39,26 +40,14 @@ export function useExtraHoursCalculator() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/time-calculator/extra-hours', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          entryTime,
-          lunchTime,
-          returnTime,
-          exitTime,
-          returnToWorkTime,
-          finalExitTime
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular horas extras');
-      }
-
-      const data = await response.json();
+      const data = await timeCalculatorApi.calculateExtraHours(
+        entryTime,
+        lunchTime,
+        returnTime,
+        exitTime,
+        returnToWorkTime,
+        finalExitTime
+      );
       setResults({ extraHours: data.result });
     } catch (err) {
       setError('Ocorreu um erro ao calcular as horas extras.');

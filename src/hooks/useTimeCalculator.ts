@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { timeCalculatorApi } from '../services/api';
 
 interface TimeResult {
   hours: number;
@@ -31,19 +32,7 @@ export function useTimeCalculator() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/time-calculator/exit-time', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ entryTime }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular horário de saída');
-      }
-
-      const data = await response.json();
+      const data = await timeCalculatorApi.calculateExitTime(entryTime);
       setResults(prev => ({ ...prev, exitTime: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de saída.');
@@ -60,19 +49,7 @@ export function useTimeCalculator() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/time-calculator/lunch-return-time', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ entryTime, lunchTime }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular horário de retorno do almoço');
-      }
-
-      const data = await response.json();
+      const data = await timeCalculatorApi.calculateLunchReturnTime(entryTime, lunchTime);
       setResults(prev => ({ ...prev, lunchReturnTime: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de retorno do almoço.');
@@ -89,19 +66,7 @@ export function useTimeCalculator() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/time-calculator/exit-time-with-lunch', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ entryTime, lunchTime, returnTime }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular horário de saída com almoço');
-      }
-
-      const data = await response.json();
+      const data = await timeCalculatorApi.calculateExitTimeWithLunch(entryTime, lunchTime, returnTime);
       setResults(prev => ({ ...prev, exitTimeWithLunch: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de saída com almoço.');
