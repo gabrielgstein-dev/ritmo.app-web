@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { timeCalculatorApi } from '../services/api';
 
 interface TimeResult {
   hours: number;
@@ -38,6 +39,7 @@ export default function TimeCalculatorForm() {
     extraHours: null
   });
   const [loading, setLoading] = useState(false);
+  // A variável loading é usada para exibir um indicador de carregamento na interface
   const [error, setError] = useState('');
 
   const calculateExitTime = useCallback(async () => {
@@ -47,19 +49,7 @@ export default function TimeCalculatorForm() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/time-calculator/exit-time', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ entryTime }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular horário de saída');
-      }
-
-      const data = await response.json();
+      const data = await timeCalculatorApi.calculateExitTime(entryTime);
       setResults(prev => ({ ...prev, exitTime: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de saída.');
@@ -76,19 +66,7 @@ export default function TimeCalculatorForm() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/time-calculator/lunch-return-time', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ entryTime, lunchTime }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular horário de retorno do almoço');
-      }
-
-      const data = await response.json();
+      const data = await timeCalculatorApi.calculateLunchReturnTime(entryTime, lunchTime);
       setResults(prev => ({ ...prev, lunchReturnTime: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de retorno do almoço.');
@@ -105,19 +83,7 @@ export default function TimeCalculatorForm() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/time-calculator/exit-time-with-lunch', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ entryTime, lunchTime, returnTime }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular horário de saída com almoço');
-      }
-
-      const data = await response.json();
+      const data = await timeCalculatorApi.calculateExitTimeWithLunch(entryTime, lunchTime, returnTime);
       setResults(prev => ({ ...prev, exitTimeWithLunch: data.result }));
       
       // Definir automaticamente o horário de saída calculado
@@ -139,26 +105,14 @@ export default function TimeCalculatorForm() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/time-calculator/extra-hours', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          entryTime, 
-          lunchTime, 
-          returnTime, 
-          exitTime, 
-          returnToWorkTime, 
-          finalExitTime 
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular horas extras');
-      }
-
-      const data = await response.json();
+      const data = await timeCalculatorApi.calculateExtraHours(
+        entryTime,
+        lunchTime,
+        returnTime,
+        exitTime,
+        returnToWorkTime,
+        finalExitTime
+      );
       setResults(prev => ({ ...prev, extraHours: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular as horas extras.');
@@ -173,28 +127,28 @@ export default function TimeCalculatorForm() {
     if (entryTime) {
       calculateExitTime();
     }
-  }, [calculateExitTime]);
+  }, [calculateExitTime, entryTime]);
 
   // Calcular horário de retorno do almoço quando o horário de saída para almoço for preenchido
   useEffect(() => {
     if (entryTime && lunchTime) {
       calculateLunchReturnTime();
     }
-  }, [calculateLunchReturnTime]);
+  }, [calculateLunchReturnTime, entryTime, lunchTime]);
 
   // Calcular horário de saída com almoço quando o horário de retorno do almoço for preenchido
   useEffect(() => {
     if (entryTime && lunchTime && returnTime) {
       calculateExitTimeWithLunch();
     }
-  }, [calculateExitTimeWithLunch]);
+  }, [calculateExitTimeWithLunch, entryTime, lunchTime, returnTime]);
   
   // Calcular horas extras quando todos os campos necessários estiverem preenchidos
   useEffect(() => {
     if (entryTime && lunchTime && returnTime && exitTime && returnToWorkTime && finalExitTime) {
       calculateExtraHours();
     }
-  }, [calculateExtraHours]);
+  }, [calculateExtraHours, entryTime, lunchTime, returnTime, exitTime, returnToWorkTime, finalExitTime]);
 
   return (
     <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
@@ -352,6 +306,13 @@ export default function TimeCalculatorForm() {
           )}
         </div>
       </div>
+
+      {loading && (
+        <div className="mt-4 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500 mr-2"></div>
+          <p className="text-gray-600">Calculando...</p>
+        </div>
+      )}
 
       {error && (
         <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
