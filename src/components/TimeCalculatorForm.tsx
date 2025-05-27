@@ -38,14 +38,14 @@ export default function TimeCalculatorForm() {
     exitTimeWithLunch: null,
     extraHours: null
   });
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   // A variável loading é usada para exibir um indicador de carregamento na interface
   const [error, setError] = useState('');
 
   const calculateExitTime = useCallback(async () => {
     if (!entryTime) return;
     
-    setLoading(true);
+
     setError('');
 
     try {
@@ -54,15 +54,13 @@ export default function TimeCalculatorForm() {
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de saída.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }, [entryTime]);
 
   const calculateLunchReturnTime = useCallback(async () => {
     if (!entryTime || !lunchTime) return;
     
-    setLoading(true);
+
     setError('');
 
     try {
@@ -71,15 +69,13 @@ export default function TimeCalculatorForm() {
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de retorno do almoço.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }, [entryTime, lunchTime]);
 
   const calculateExitTimeWithLunch = useCallback(async () => {
     if (!entryTime || !lunchTime || !returnTime) return;
     
-    setLoading(true);
+
     setError('');
 
     try {
@@ -93,15 +89,13 @@ export default function TimeCalculatorForm() {
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de saída considerando o almoço.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }, [entryTime, lunchTime, returnTime]);
   
   const calculateExtraHours = useCallback(async () => {
     if (!entryTime || !lunchTime || !returnTime || !exitTime || !returnToWorkTime || !finalExitTime) return;
     
-    setLoading(true);
+
     setError('');
 
     try {
@@ -117,8 +111,6 @@ export default function TimeCalculatorForm() {
     } catch (err) {
       setError('Ocorreu um erro ao calcular as horas extras.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }, [entryTime, lunchTime, returnTime, exitTime, returnToWorkTime, finalExitTime]);
   

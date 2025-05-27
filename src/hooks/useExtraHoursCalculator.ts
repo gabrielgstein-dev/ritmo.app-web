@@ -1,12 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { timeCalculatorApi } from '../services/api';
 
-interface TimeResult {
-  hours: number;
-  minutes: number;
-  formattedTime: string;
-}
-
 interface ExtraHoursResult {
   extraHours: number;
   extraMinutes: number;
