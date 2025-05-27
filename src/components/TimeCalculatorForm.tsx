@@ -37,13 +37,12 @@ export default function TimeCalculatorForm() {
     exitTimeWithLunch: null,
     extraHours: null
   });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const calculateExitTime = useCallback(async () => {
     if (!entryTime) return;
     
-    setLoading(true);
+
     setError('');
 
     try {
@@ -64,15 +63,13 @@ export default function TimeCalculatorForm() {
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de saída.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }, [entryTime]);
 
   const calculateLunchReturnTime = useCallback(async () => {
     if (!entryTime || !lunchTime) return;
     
-    setLoading(true);
+
     setError('');
 
     try {
@@ -93,15 +90,13 @@ export default function TimeCalculatorForm() {
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de retorno do almoço.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }, [entryTime, lunchTime]);
 
   const calculateExitTimeWithLunch = useCallback(async () => {
     if (!entryTime || !lunchTime || !returnTime) return;
     
-    setLoading(true);
+
     setError('');
 
     try {
@@ -127,15 +122,13 @@ export default function TimeCalculatorForm() {
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de saída considerando o almoço.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }, [entryTime, lunchTime, returnTime]);
   
   const calculateExtraHours = useCallback(async () => {
     if (!entryTime || !lunchTime || !returnTime || !exitTime || !returnToWorkTime || !finalExitTime) return;
     
-    setLoading(true);
+
     setError('');
 
     try {
@@ -163,8 +156,6 @@ export default function TimeCalculatorForm() {
     } catch (err) {
       setError('Ocorreu um erro ao calcular as horas extras.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }, [entryTime, lunchTime, returnTime, exitTime, returnToWorkTime, finalExitTime]);
   
@@ -173,28 +164,28 @@ export default function TimeCalculatorForm() {
     if (entryTime) {
       calculateExitTime();
     }
-  }, [calculateExitTime]);
+  }, [calculateExitTime, entryTime]);
 
   // Calcular horário de retorno do almoço quando o horário de saída para almoço for preenchido
   useEffect(() => {
     if (entryTime && lunchTime) {
       calculateLunchReturnTime();
     }
-  }, [calculateLunchReturnTime]);
+  }, [calculateLunchReturnTime, entryTime, lunchTime]);
 
   // Calcular horário de saída com almoço quando o horário de retorno do almoço for preenchido
   useEffect(() => {
     if (entryTime && lunchTime && returnTime) {
       calculateExitTimeWithLunch();
     }
-  }, [calculateExitTimeWithLunch]);
+  }, [calculateExitTimeWithLunch, entryTime, lunchTime, returnTime]);
   
   // Calcular horas extras quando todos os campos necessários estiverem preenchidos
   useEffect(() => {
     if (entryTime && lunchTime && returnTime && exitTime && returnToWorkTime && finalExitTime) {
       calculateExtraHours();
     }
-  }, [calculateExtraHours]);
+  }, [calculateExtraHours, entryTime, lunchTime, returnTime, exitTime, returnToWorkTime, finalExitTime]);
 
   return (
     <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">

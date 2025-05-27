@@ -1,11 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
 
-interface TimeResult {
-  hours: number;
-  minutes: number;
-  formattedTime: string;
-}
-
 interface ExtraHoursResult {
   extraHours: number;
   extraMinutes: number;
