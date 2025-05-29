@@ -31,6 +31,7 @@ export default function TimeCalculatorForm() {
   const [returnToWorkTime, setReturnToWorkTime] = useState('');
   const [finalExitTime, setFinalExitTime] = useState('');
   const [showExtraFields, setShowExtraFields] = useState(false);
+  const [workHours, setWorkHours] = useState(8);
   
   const [results, setResults] = useState<CalculationResult>({
     exitTime: null,
@@ -39,7 +40,7 @@ export default function TimeCalculatorForm() {
     extraHours: null
   });
   const [loading] = useState(false);
-  // A variável loading é usada para exibir um indicador de carregamento na interface
+
   const [error, setError] = useState('');
 
   const calculateExitTime = useCallback(async () => {
@@ -49,13 +50,13 @@ export default function TimeCalculatorForm() {
     setError('');
 
     try {
-      const data = await timeCalculatorApi.calculateExitTime(entryTime);
+      const data = await timeCalculatorApi.calculateExitTime(entryTime, { standardWorkHours: workHours });
       setResults(prev => ({ ...prev, exitTime: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de saída.');
       console.error(err);
     }
-  }, [entryTime]);
+  }, [entryTime, workHours]);
 
   const calculateLunchReturnTime = useCallback(async () => {
     if (!entryTime || !lunchTime) return;
@@ -64,13 +65,13 @@ export default function TimeCalculatorForm() {
     setError('');
 
     try {
-      const data = await timeCalculatorApi.calculateLunchReturnTime(entryTime, lunchTime);
+      const data = await timeCalculatorApi.calculateLunchReturnTime(entryTime, lunchTime, { standardWorkHours: workHours });
       setResults(prev => ({ ...prev, lunchReturnTime: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular o horário de retorno do almoço.');
       console.error(err);
     }
-  }, [entryTime, lunchTime]);
+  }, [entryTime, lunchTime, workHours]);
 
   const calculateExitTimeWithLunch = useCallback(async () => {
     if (!entryTime || !lunchTime || !returnTime) return;
@@ -79,10 +80,10 @@ export default function TimeCalculatorForm() {
     setError('');
 
     try {
-      const data = await timeCalculatorApi.calculateExitTimeWithLunch(entryTime, lunchTime, returnTime);
+      const data = await timeCalculatorApi.calculateExitTimeWithLunch(entryTime, lunchTime, returnTime, { standardWorkHours: workHours });
       setResults(prev => ({ ...prev, exitTimeWithLunch: data.result }));
       
-      // Definir automaticamente o horário de saída calculado
+
       if (data.result) {
         setExitTime(data.result.formattedTime);
       }
@@ -90,7 +91,7 @@ export default function TimeCalculatorForm() {
       setError('Ocorreu um erro ao calcular o horário de saída considerando o almoço.');
       console.error(err);
     }
-  }, [entryTime, lunchTime, returnTime]);
+  }, [entryTime, lunchTime, returnTime, workHours]);
   
   const calculateExtraHours = useCallback(async () => {
     if (!entryTime || !lunchTime || !returnTime || !exitTime || !returnToWorkTime || !finalExitTime) return;
@@ -105,37 +106,38 @@ export default function TimeCalculatorForm() {
         returnTime,
         exitTime,
         returnToWorkTime,
-        finalExitTime
+        finalExitTime,
+        { standardWorkHours: workHours }
       );
       setResults(prev => ({ ...prev, extraHours: data.result }));
     } catch (err) {
       setError('Ocorreu um erro ao calcular as horas extras.');
       console.error(err);
     }
-  }, [entryTime, lunchTime, returnTime, exitTime, returnToWorkTime, finalExitTime]);
+  }, [entryTime, lunchTime, returnTime, exitTime, returnToWorkTime, finalExitTime, workHours]);
   
-  // Calcular horário de saída quando o horário de entrada for preenchido
+
   useEffect(() => {
     if (entryTime) {
       calculateExitTime();
     }
   }, [calculateExitTime, entryTime]);
 
-  // Calcular horário de retorno do almoço quando o horário de saída para almoço for preenchido
+
   useEffect(() => {
     if (entryTime && lunchTime) {
       calculateLunchReturnTime();
     }
   }, [calculateLunchReturnTime, entryTime, lunchTime]);
 
-  // Calcular horário de saída com almoço quando o horário de retorno do almoço for preenchido
+
   useEffect(() => {
     if (entryTime && lunchTime && returnTime) {
       calculateExitTimeWithLunch();
     }
   }, [calculateExitTimeWithLunch, entryTime, lunchTime, returnTime]);
   
-  // Calcular horas extras quando todos os campos necessários estiverem preenchidos
+
   useEffect(() => {
     if (entryTime && lunchTime && returnTime && exitTime && returnToWorkTime && finalExitTime) {
       calculateExtraHours();
@@ -153,6 +155,36 @@ export default function TimeCalculatorForm() {
 
       <div className="space-y-4">
         <div>
+          <label htmlFor="workHours" className="block mb-1 font-medium">
+            Carga Horária Diária
+          </label>
+          <div className="flex space-x-4 mb-4">
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                name="workHours"
+                value="8"
+                checked={workHours === 8}
+                onChange={() => setWorkHours(8)}
+                className="form-radio h-4 w-4 text-blue-600"
+              />
+              <span className="ml-2">8 horas</span>
+            </label>
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                name="workHours"
+                value="9"
+                checked={workHours === 9}
+                onChange={() => setWorkHours(9)}
+                className="form-radio h-4 w-4 text-blue-600"
+              />
+              <span className="ml-2">9 horas</span>
+            </label>
+          </div>
+        </div>
+        
+        <div>
           <label htmlFor="entryTime" className="block mb-1 font-medium">
             Horário de Entrada
           </label>
@@ -169,7 +201,7 @@ export default function TimeCalculatorForm() {
           <div className="p-3 bg-blue-50 rounded-md">
             <p className="font-medium">Horário de saída previsto:</p>
             <p className="text-xl font-bold text-blue-700">{results.exitTime.formattedTime}</p>
-            <p className="text-xs text-gray-500">Para completar 8h de trabalho</p>
+            <p className="text-xs text-gray-500">Para completar {workHours}h de trabalho</p>
           </div>
         )}
 
