@@ -1,15 +1,22 @@
 'use client';
 
-import { useCompaniesStore } from '../stores/useCompaniesStore';
+import { Company } from '../services/companies';
 
-export default function CompanySelector() {
-  const { 
-    companies, 
-    selectedCompany, 
-    loading, 
-    error, 
-    selectCompany 
-  } = useCompaniesStore();
+interface CompanySelectorProps {
+  companies: Company[];
+  selectedCompanyId?: number;
+  loading: boolean;
+  error: string | null;
+  onCompanyChange: (companyId: number) => void;
+}
+
+export default function CompanySelector({
+  companies,
+  selectedCompanyId,
+  loading,
+  error,
+  onCompanyChange
+}: CompanySelectorProps) {
 
   if (loading) {
     return <div className="text-sm text-gray-500">Carregando empresas...</div>;
@@ -31,8 +38,8 @@ export default function CompanySelector() {
       <select
         id="company"
         className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        value={selectedCompany?.id || ''}
-        onChange={(e) => selectCompany(Number(e.target.value))}
+        value={selectedCompanyId || ''}
+        onChange={(e) => onCompanyChange(Number(e.target.value))}
       >
         {companies.map((company) => (
           <option key={company.id} value={company.id}>

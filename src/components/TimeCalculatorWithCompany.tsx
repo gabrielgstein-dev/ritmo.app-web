@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useCompanies } from '../hooks/useCompanies';
 import { timeCalculatorApi } from '../services/api';
 import CompanySelector from './CompanySelector';
@@ -31,7 +31,7 @@ export default function TimeCalculatorWithCompany({ token }: TimeCalculatorWithC
     selectCompany 
   } = useCompanies();
 
-  const calculateExitTime = async () => {
+  const calculateExitTime = useCallback(async () => {
     if (!entryTime) return;
     
     try {
@@ -52,9 +52,9 @@ export default function TimeCalculatorWithCompany({ token }: TimeCalculatorWithC
     } finally {
       setLoading(false);
     }
-  };
+  }, [entryTime, selectedCompany, token, setExitTime, setLoading, setError]);
 
-  const calculateLunchReturnTime = async () => {
+  const calculateLunchReturnTime = useCallback(async () => {
     if (!entryTime || !lunchTime) return;
     
     try {
@@ -76,9 +76,9 @@ export default function TimeCalculatorWithCompany({ token }: TimeCalculatorWithC
     } finally {
       setLoading(false);
     }
-  };
+  }, [entryTime, lunchTime, selectedCompany, token, setReturnTime, setLoading, setError]);
 
-  const calculateExitTimeWithLunch = async () => {
+  const calculateExitTimeWithLunch = useCallback(async () => {
     if (!entryTime || !lunchTime || !returnTime) return;
     
     try {
@@ -101,9 +101,9 @@ export default function TimeCalculatorWithCompany({ token }: TimeCalculatorWithC
     } finally {
       setLoading(false);
     }
-  };
+  }, [entryTime, lunchTime, returnTime, selectedCompany, token, setExitTime, setLoading, setError]);
 
-  const calculateExtraHours = async () => {
+  const calculateExtraHours = useCallback(async () => {
     if (!entryTime || !lunchTime || !returnTime || !exitTime || !returnToWorkTime || !finalExitTime) return;
     
     try {
@@ -130,6 +130,10 @@ export default function TimeCalculatorWithCompany({ token }: TimeCalculatorWithC
     } finally {
       setLoading(false);
     }
+  }, [entryTime, lunchTime, returnTime, exitTime, returnToWorkTime, finalExitTime, selectedCompany, token, setExtraHours, setIsExtraTime, setLoading, setError]);
+
+  const handleCompanyChange = (companyId: number) => {
+    selectCompany(companyId);
   };
 
   const saveTimeRecord = async () => {
@@ -180,26 +184,25 @@ export default function TimeCalculatorWithCompany({ token }: TimeCalculatorWithC
     if (entryTime) {
       calculateExitTime();
     }
-  }, [entryTime, selectedCompany]);
+  }, [entryTime, selectedCompany, calculateExitTime]);
 
   useEffect(() => {
     if (entryTime && lunchTime) {
       calculateLunchReturnTime();
     }
-  }, [lunchTime, selectedCompany]);
+  }, [lunchTime, selectedCompany, entryTime, calculateLunchReturnTime]);
 
   useEffect(() => {
     if (entryTime && lunchTime && returnTime) {
       calculateExitTimeWithLunch();
     }
-  }, [returnTime, selectedCompany]);
+  }, [returnTime, selectedCompany, entryTime, lunchTime, calculateExitTimeWithLunch]);
 
   useEffect(() => {
     if (entryTime && lunchTime && returnTime && exitTime && returnToWorkTime && finalExitTime) {
       calculateExtraHours();
     }
-  }, [finalExitTime, selectedCompany]);
-
+  }, [entryTime, exitTime, finalExitTime, lunchTime, returnTime, returnToWorkTime, selectedCompany]);
 
   useEffect(() => {
     if (message) {
@@ -209,10 +212,6 @@ export default function TimeCalculatorWithCompany({ token }: TimeCalculatorWithC
       return () => clearTimeout(timer);
     }
   }, [message]);
-
-  const handleCompanyChange = (companyId: number) => {
-    selectCompany(companyId);
-  };
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">

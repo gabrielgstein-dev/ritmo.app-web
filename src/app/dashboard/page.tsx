@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -39,7 +39,7 @@ export default function DashboardPage() {
   }, [isLoading, isAuthenticated, router]);
   
 
-  const fetchRecentRecords = async () => {
+  const fetchRecentRecords = useCallback(async () => {
     if (!token) return;
     
     try {
@@ -61,13 +61,13 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
   
   useEffect(() => {
     if (token) {
       fetchRecentRecords();
     }
-  }, [token]);
+  }, [token, fetchRecentRecords]);
   
 
   const formatDate = (dateString: string) => {

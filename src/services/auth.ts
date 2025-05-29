@@ -17,6 +17,14 @@ export interface AuthResponse {
   accessToken: string;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export const authApi = {
   login: async (credentials: AuthCredentials): Promise<AuthResponse> => {
     const response = await fetch(`${API_URL}/auth/login`, {
@@ -50,7 +58,7 @@ export const authApi = {
     return response.json();
   },
   
-  getProfile: async (token: string): Promise<any> => {
+  getProfile: async (token: string): Promise<UserProfile> => {
     const response = await fetch(`${API_URL}/users/profile`, {
       method: 'GET',
       headers: {

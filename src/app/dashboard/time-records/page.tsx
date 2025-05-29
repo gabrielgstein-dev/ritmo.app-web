@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useCompaniesStore } from '@/stores/useCompaniesStore';
+import { useCompanies } from '@/hooks/useCompanies';
 import CompanySelector from '@/components/CompanySelector';
 import { useDateRange } from '@/hooks/useDateRange';
 import { useTimeRecordsManager } from '@/hooks/useTimeRecordsManager';
@@ -12,7 +12,13 @@ export default function TimeRecordsPage() {
   const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
   
-  const { error: errorCompanies } = useCompaniesStore();
+  const { 
+    companies, 
+    selectedCompany: companiesSelectedCompany, 
+    loading: loadingCompanies, 
+    error: errorCompanies, 
+    selectCompany 
+  } = useCompanies();
   
   const {
     timeRecords,
@@ -73,7 +79,13 @@ export default function TimeRecordsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
           <div className="col-span-1 md:col-span-2">
-            <CompanySelector />
+            <CompanySelector 
+              companies={companies}
+              selectedCompanyId={companiesSelectedCompany?.id}
+              loading={loadingCompanies}
+              error={errorCompanies}
+              onCompanyChange={selectCompany}
+            />
           </div>
           
 

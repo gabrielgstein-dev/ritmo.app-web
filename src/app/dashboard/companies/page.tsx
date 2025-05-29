@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Company, CreateCompanyData, companiesApi } from '@/services/companies';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function CompaniesPage() {
-  const { user, token, isLoading, isAuthenticated } = useAuth();
+  const { token, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
   
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -31,7 +31,7 @@ export default function CompaniesPage() {
   }, [isLoading, isAuthenticated, router]);
   
 
-  const fetchCompanies = async () => {
+  const fetchCompanies = useCallback(async () => {
     if (!token) return;
     
     try {
@@ -44,13 +44,13 @@ export default function CompaniesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
   
   useEffect(() => {
     if (token) {
       fetchCompanies();
     }
-  }, [token]);
+  }, [token, fetchCompanies]);
   
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

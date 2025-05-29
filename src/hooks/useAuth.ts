@@ -20,7 +20,7 @@ export function useAuth() {
 
   useEffect(() => {
     initialize();
-  }, []);
+  }, [initialize]);
   
   return {
     user,
